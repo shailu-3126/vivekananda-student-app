@@ -1,0 +1,24 @@
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: studentuser
+      POSTGRES_PASSWORD: testpassword
+      POSTGRES_DB: studentdb
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    env_file:
+      - .env
+    ports:
+      - "8001:8000"
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+
