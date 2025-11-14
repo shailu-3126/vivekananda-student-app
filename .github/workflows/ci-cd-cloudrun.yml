@@ -1,0 +1,54 @@
+name: CI/CD - Build & Deploy Backend to Cloud Run
+
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud (OIDC)
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: "projects/619930646601/locations/global/workloadIdentityPools/github-pool/providers/github-provider"
+          service_account: "cloudrun-runner@shailaja-477403.iam.gserviceaccount.com"
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: "shailaja-477403"
+          install_components: "gcloud"
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker asia-south1-docker.pkg.dev --quiet
+
+      - name: Build image
+        run: |
+          IMAGE="asia-south1-docker.pkg.dev/shailaja-477403/vivekananda-backend-repo/student-backend:${{ github.sha }}"
+          docker build -t $IMAGE ./backend
+
+      - name: Push image
+        run: |
+          IMAGE="asia-south1-docker.pkg.dev/shailaja-477403/vivekananda-backend-repo/student-backend:${{ github.sha }}"
+          docker push $IMAGE
+
+      - name: Deploy to Cloud Run
+        run: |
+          IMAGE="asia-south1-docker.pkg.dev/shailaja-477403/vivekananda-backend-repo/student-backend:${{ github.sha }}"
+          gcloud run deploy student-backend \
+            --image $IMAGE \
+            --region asia-south1 \
+            --platform managed \
+            --allow-unauthenticated \
+            --set-env-vars DB_NAME=studentdb,DB_USER=studentuser \
+            --set-secrets=DB_PASSWORD=student-db-pass:latest \
+            --set-env-vars CLOUD_SQL_CONNECTION_NAME=shailaja-477403:asia-south1:student-db-instance

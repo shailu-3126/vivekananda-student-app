@@ -6,5 +6,5 @@ CREATE TABLE IF NOT EXISTS students (
 );
 
 INSERT INTO students (name, age, grade)
-VALUES ('shailaja', 23, 'A')
+VALUES ('Vivekananda', 23, 'A')
 ON CONFLICT DO NOTHING;

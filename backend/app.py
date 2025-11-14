@@ -1,19 +1,25 @@
 import os
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
-app = FastAPI()
+app = FastAPI(title="Vivekananda Student App - Backend")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
+    allow_headers=["*"],
+)
 
 def get_db_connection():
-    # Read connection settings from environment variables
-    db_host = os.getenv("DB_HOST", "postgres")
     db_name = os.getenv("DB_NAME", "studentdb")
-    db_user = os.getenv("DB_USER", "postgres")
+    db_user = os.getenv("DB_USER", "studentuser")
     db_password = os.getenv("DB_PASSWORD", "")
     cloud_sql_conn = os.getenv("CLOUD_SQL_CONNECTION_NAME")
+    db_host = os.getenv("DB_HOST", "postgres")
 
-    # Cloud Run (connect through Unix socket)
     if cloud_sql_conn:
         host = f"/cloudsql/{cloud_sql_conn}"
     else:

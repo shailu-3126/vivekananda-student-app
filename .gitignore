@@ -1,19 +1,5 @@
-# Python
+.env
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
-
-# Env
-.env
-
-# VS Code
 .vscode/
-
-# Docker
 postgres_data/
-*.log
-
-# OS
-Thumbs.db
-Desktop.ini
