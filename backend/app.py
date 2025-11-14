@@ -20,6 +20,7 @@ def get_db_connection():
     cloud_sql_conn = os.getenv("CLOUD_SQL_CONNECTION_NAME")
     db_host = os.getenv("DB_HOST", "postgres")
 
+    # Cloud Run uses unix socket path when CLOUD_SQL_CONNECTION_NAME is provided
     if cloud_sql_conn:
         host = f"/cloudsql/{cloud_sql_conn}"
     else:
